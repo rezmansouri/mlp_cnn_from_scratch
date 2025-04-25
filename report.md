@@ -8,6 +8,7 @@
 $$
     x=2
 $$
+$x$
 ## 1. Introduction
 
 ### 1.1 Background and Motivation
