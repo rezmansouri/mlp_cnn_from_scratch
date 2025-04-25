@@ -5,10 +5,7 @@
 ### Reza Mansouri `rmansouri1[at]student.gsu.edu`
 ### Pranjal Patil `ppatil8[at]student.gsu.edu`
 ### Ven Mendelssohn `gmendelssohn1[at]student.gsu.edu`
-$$
-    x=2
-$$
-$x$
+
 ## 1. Introduction
 
 ### 1.1 Background and Motivation
@@ -104,10 +101,10 @@ Test Accuracy: 0.9701
 #### 2.1.2 Gradient computaion
 
 We consider a standard Multilayer Perceptron (MLP) with:
-- Input: $ \mathbf{x} \in \mathbb{R}^{d} $ (flattened image vector of size 784)
-- Hidden layer: weights $ \mathbf{W}_1 \in \mathbb{R}^{d \times h} $, bias $ \mathbf{b}_1 \in \mathbb{R}^{h} $
-- Activation: sigmoid function $ \sigma(z) = \frac{1}{1 + e^{-z}} $
-- Output layer: weights $ \mathbf{W}_2 \in \mathbb{R}^{h \times 10} $, bias $ \mathbf{b}_2 \in \mathbb{R}^{10} $
+- Input:$\mathbf{x} \in \mathbb{R}^{d}$(flattened image vector of size 784)
+- Hidden layer: weights$\mathbf{W}_1 \in \mathbb{R}^{d \times h}$, bias$\mathbf{b}_1 \in \mathbb{R}^{h}$
+- Activation: sigmoid function$\sigma(z) = \frac{1}{1 + e^{-z}}$
+- Output layer: weights$\mathbf{W}_2 \in \mathbb{R}^{h \times 10}$, bias$\mathbf{b}_2 \in \mathbb{R}^{10}$
 - Output activation: softmax
 
 The model computes:
@@ -124,13 +121,13 @@ $$
 \hat{\mathbf{y}} = \text{softmax}(\mathbf{z}_2)
 $$
 
-where $ \hat{\mathbf{y}} $ is the predicted probability distribution over 10 classes.
+where$\hat{\mathbf{y}}$is the predicted probability distribution over 10 classes.
 
 The loss is cross-entropy:
 $$
 L = -\sum_{i=1}^{10} y_i \log(\hat{y}_i)
 $$
-where $ \mathbf{y} $ is the true one-hot encoded label vector.
+where$\mathbf{y}$is the true one-hot encoded label vector.
 
 ---
 
@@ -147,19 +144,19 @@ This gives the error at the output layer directly.
 
 ##### Step 2: Gradients for Output Layer Parameters
 
-Compute gradients of the loss with respect to the second layer weights $ \mathbf{W}_2 $ and bias $ \mathbf{b}_2 $:
+Compute gradients of the loss with respect to the second layer weights$\mathbf{W}_2$and bias$\mathbf{b}_2$:
 
-- Gradient w.r.t. $ \mathbf{W}_2 $:
+- Gradient w.r.t.$\mathbf{W}_2$:
 $$
 \frac{\partial L}{\partial \mathbf{W}_2} = \mathbf{h}^\top (\hat{\mathbf{y}} - \mathbf{y})
 $$
 
-- Gradient w.r.t. $ \mathbf{b}_2 $:
+- Gradient w.r.t.$\mathbf{b}_2$:
 $$
 \frac{\partial L}{\partial \mathbf{b}_2} = \hat{\mathbf{y}} - \mathbf{y}
 $$
 
-where $ \mathbf{h} $ is the hidden layer output (after sigmoid activation).
+where$\mathbf{h}$is the hidden layer output (after sigmoid activation).
 
 ---
 
@@ -167,7 +164,7 @@ where $ \mathbf{h} $ is the hidden layer output (after sigmoid activation).
 
 Compute the gradient flowing into the hidden layer:
 
-- First, backpropagate through $ \mathbf{z}_2 $:
+- First, backpropagate through$\mathbf{z}_2$:
 $$
 \frac{\partial L}{\partial \mathbf{h}} = (\hat{\mathbf{y}} - \mathbf{y}) \mathbf{W}_2^\top
 $$
@@ -182,20 +179,20 @@ Thus:
 $$
 \frac{\partial L}{\partial \mathbf{z}_1} = \frac{\partial L}{\partial \mathbf{h}} \odot \sigma(\mathbf{z}_1) (1 - \sigma(\mathbf{z}_1))
 $$
-where $ \odot $ denotes element-wise (Hadamard) product.
+where$\odot$denotes element-wise (Hadamard) product.
 
 ---
 
 ##### Step 4: Gradients for Hidden Layer Parameters
 
-Compute gradients of the loss with respect to the first layer weights $ \mathbf{W}_1 $ and bias $ \mathbf{b}_1 $:
+Compute gradients of the loss with respect to the first layer weights$\mathbf{W}_1$and bias$\mathbf{b}_1$:
 
-- Gradient w.r.t. $ \mathbf{W}_1 $:
+- Gradient w.r.t.$\mathbf{W}_1$:
 $$
 \frac{\partial L}{\partial \mathbf{W}_1} = \mathbf{x}^\top \left( \frac{\partial L}{\partial \mathbf{z}_1} \right)
 $$
 
-- Gradient w.r.t. $ \mathbf{b}_1 $:
+- Gradient w.r.t.$\mathbf{b}_1$:
 $$
 \frac{\partial L}{\partial \mathbf{b}_1} = \frac{\partial L}{\partial \mathbf{z}_1}
 $$
@@ -220,14 +217,14 @@ $$
 \mathbf{b}_1 \leftarrow \mathbf{b}_1 - \eta \frac{\partial L}{\partial \mathbf{b}_1}
 $$
 
-where $ \eta $ is the learning rate.
+where$\eta$is the learning rate.
 
 ---
 
 ### Key Remarks:
 - The softmax + cross-entropy derivative simplifies the first step: no need to compute softmax derivative separately.
 - Proper handling of element-wise derivatives of the sigmoid activation is critical to avoid incorrect gradient shapes.
-- All computations assume batch mode: $ \mathbf{x} $ can represent multiple samples at once.
+- All computations assume batch mode:$\mathbf{x}$can represent multiple samples at once.
 
 
 ---
@@ -285,9 +282,9 @@ Remarks:
 - The convolution operation is transformed into a batch matrix multiplication by unfolding local patches into rows ("im2col" style) and reshaping filters into rows. Each patch becomes a vector.
 - Mathematically, if `x_patch` has shape `(B, OH*OW, KH*KW)` and `filters_flat` has shape `(F, KH*KW)`, then:
 
-$ output[b, :, i] = filters \times x\_patch[b, i]^T $
+$output[b, :, i] = filters \times x\_patch[b, i]^T$
 
-where $ x\_patch[b, i] $ is the flattened receptive field.
+where$x\_patch[b, i]$is the flattened receptive field.
 - This avoids costly nested loops over batch, filters, and spatial dimensions.
 
 **CNN Backward Pass:**
@@ -327,7 +324,7 @@ Remarks:
 - During backpropagation, output gradients `d_conv` are reshaped to align with the patch matrix.
 - The filter gradient is efficiently computed using:
 
-$ \Delta W = \sum_b d\_out[b] \times x\_patch[b] $
+$\Delta W = \sum_b d\_out[b] \times x\_patch[b]$
 
 where `d_out[b]` is the output gradient for batch `b` reshaped as `(F, OH*OW)`, and `x_patch[b]` is the local receptive fields.
 - This matrix multiplication accumulates gradients for all patches and batches simultaneously, maintaining full batch parallelism.
@@ -347,10 +344,10 @@ Test Accuracy: 0.9252
 ### 2.2.2 Gradient computation
 
 We consider a simple CNN with:
-- Input: $ \mathbf{x} \in \mathbb{R}^{B \times 1 \times H \times W} $ (batch of grayscale images)
-- Convolutional layer: filters $ \mathbf{W}_{\text{conv}} \in \mathbb{R}^{F \times 1 \times K \times K} $ (F filters of size $ K \times K $)
+- Input:$\mathbf{x} \in \mathbb{R}^{B \times 1 \times H \times W}$(batch of grayscale images)
+- Convolutional layer: filters$\mathbf{W}_{\text{conv}} \in \mathbb{R}^{F \times 1 \times K \times K}$(F filters of size$K \times K$)
 - Activation: ReLU
-- Fully connected layer: weights $ \mathbf{W}_{\text{fc}} \in \mathbb{R}^{d \times 10} $ where $ d $ is the flattened size after convolution
+- Fully connected layer: weights$\mathbf{W}_{\text{fc}} \in \mathbb{R}^{d \times 10}$where$d$is the flattened size after convolution
 - Output activation: softmax
 
 The model computes:
@@ -422,7 +419,7 @@ $$
 \frac{\partial L}{\partial \mathbf{z}_{\text{conv}}} = \frac{\partial L}{\partial \mathbf{h}_{\text{conv}}} \odot \mathbf{1}_{\mathbf{z}_{\text{conv}} > 0}
 $$
 
-where $ \mathbf{1}_{\mathbf{z}_{\text{conv}} > 0} $ is an indicator function that is 1 where $ \mathbf{z}_{\text{conv}} $ was positive and 0 elsewhere.
+where$\mathbf{1}_{\mathbf{z}_{\text{conv}} > 0}$is an indicator function that is 1 where$\mathbf{z}_{\text{conv}}$was positive and 0 elsewhere.
 
 ---
 
@@ -433,18 +430,18 @@ At this point, we need to compute the gradient of the loss with respect to the c
 Using vectorized notation:
 
 Let:
-- $ \mathbf{P} $ be the matrix of extracted patches from $ \mathbf{x} $, with shape $ (B, OH \times OW, K \times K) $
-- $ \delta_{\text{conv}} = \frac{\partial L}{\partial \mathbf{z}_{\text{conv}}} $, reshaped as $ (B, F, OH \times OW) $
+-$\mathbf{P}$be the matrix of extracted patches from$\mathbf{x}$, with shape$(B, OH \times OW, K \times K)$
+-$\delta_{\text{conv}} = \frac{\partial L}{\partial \mathbf{z}_{\text{conv}}}$, reshaped as$(B, F, OH \times OW)$
 
-Then, for each batch $ b $, the gradient for convolutional filters is:
+Then, for each batch$b$, the gradient for convolutional filters is:
 
 $$
 \Delta \mathbf{W}_{\text{conv}} = \sum_{b=1}^B \delta_{\text{conv}}[b] \times \mathbf{P}[b]
 $$
 
 Specifically:
-- Multiply each $ (F, OH \times OW) $ gradient slice with the corresponding $ (OH \times OW, K \times K) $ patch slice.
-- Resulting in a $ (F, K, K) $ tensor.
+- Multiply each$(F, OH \times OW)$gradient slice with the corresponding$(OH \times OW, K \times K)$patch slice.
+- Resulting in a$(F, K, K)$tensor.
 
 Summed over the batch.
 
@@ -467,7 +464,7 @@ $$
 \mathbf{W}_{\text{conv}} \leftarrow \mathbf{W}_{\text{conv}} - \eta \Delta \mathbf{W}_{\text{conv}}
 $$
 
-where $ \eta $ is the learning rate.
+where$\eta$is the learning rate.
 
 ---
 
