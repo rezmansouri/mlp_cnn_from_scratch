@@ -102,9 +102,9 @@ Test Accuracy: 0.9701
 
 We consider a standard Multilayer Perceptron (MLP) with:
 - Input: $ \mathbf{x} \in \mathbb{R}^{d} $ (flattened image vector of size 784)
-- Hidden layer: weights $ \mathbf{W}_1 \in \mathbb{R}^{d \times h} $, bias $ \mathbf{b}_1 \in \mathbb{R}^{h} $$
-- Activation: sigmoid function $ \sigma(z) = \frac{1}{1 + e^{-z}} $$
-- Output layer: weights $ \mathbf{W}_2 \in \mathbb{R}^{h \times 10} $, bias $ \mathbf{b}_2 \in \mathbb{R}^{10} $$
+- Hidden layer: weights $ \mathbf{W}_1 \in \mathbb{R}^{d \times h} $, bias $ \mathbf{b}_1 \in \mathbb{R}^{h} $
+- Activation: sigmoid function $ \sigma(z) = \frac{1}{1 + e^{-z}} $
+- Output layer: weights $ \mathbf{W}_2 \in \mathbb{R}^{h \times 10} $, bias $ \mathbf{b}_2 \in \mathbb{R}^{10} $
 - Output activation: softmax
 
 The model computes:
@@ -282,7 +282,7 @@ Remarks:
 - The convolution operation is transformed into a batch matrix multiplication by unfolding local patches into rows ("im2col" style) and reshaping filters into rows. Each patch becomes a vector.
 - Mathematically, if `x_patch` has shape `(B, OH*OW, KH*KW)` and `filters_flat` has shape `(F, KH*KW)`, then:
 
-$ output[b, :, i] = filters \times x\_patch[b, i]^T $$
+$ output[b, :, i] = filters \times x\_patch[b, i]^T $
 
 where $ x\_patch[b, i] $ is the flattened receptive field.
 - This avoids costly nested loops over batch, filters, and spatial dimensions.
@@ -430,8 +430,8 @@ At this point, we need to compute the gradient of the loss with respect to the c
 Using vectorized notation:
 
 Let:
-- $ \mathbf{P} $ be the matrix of extracted patches from $ \mathbf{x} $, with shape $ (B, OH \times OW, K \times K) $$
-- $ \delta_{\text{conv}} = \frac{\partial L}{\partial \mathbf{z}_{\text{conv}}} $, reshaped as $ (B, F, OH \times OW) $$
+- $ \mathbf{P} $ be the matrix of extracted patches from $ \mathbf{x} $, with shape $ (B, OH \times OW, K \times K) $
+- $ \delta_{\text{conv}} = \frac{\partial L}{\partial \mathbf{z}_{\text{conv}}} $, reshaped as $ (B, F, OH \times OW) $
 
 Then, for each batch $ b $, the gradient for convolutional filters is:
 
