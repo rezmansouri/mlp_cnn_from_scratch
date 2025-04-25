@@ -5,7 +5,9 @@
 ### Reza Mansouri `rmansouri1[at]student.gsu.edu`
 ### Pranjal Patil `ppatil8[at]student.gsu.edu`
 ### Ven Mendelssohn `gmendelssohn1[at]student.gsu.edu`
-
+\[
+    x=2
+\]
 ## 1. Introduction
 
 ### 1.1 Background and Motivation
