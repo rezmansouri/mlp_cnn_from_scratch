@@ -16,17 +16,17 @@ This project explores the construction of both MLP and CNN models **from scratch
 ### 1.2 Problem Definition
 Our task is to classify handwritten digits from the MNIST dataset using two approaches:
 - A fully connected MLP with one hidden layer.
-- A CNN incorporating convolutional and fully connected layers.
+- A CNN incorporating one convolutional layer.
 
 ### 1.3 System Overview
 The system includes the following components:
 1. **Data preprocessing** using TorchVision, normalization, and batching.
-2. **MLP implementation:** input layer, one hidden layer, and an output softmax layer.
-3. **CNN implementation:** convolution, activation, flattening, and a fully connected output layer.
-4. **Manual backpropagation** for both architectures, with weight updates using vanilla gradient descent.
+2. **MLP implementation:** one hidden layer, and an output softmax layer.
+3. **CNN implementation:** one convolution layer (with one kernel), and an output softmax layer.
+4. **Manual backpropagation** for both architectures, with weight updates using gradient descent.
 5. **Evaluation** of model performance on the MNIST test subset.
 
----
+
 
 ## 2. Methodology
 
@@ -41,7 +41,7 @@ The MLP processes a flattened 784-dimensional input (28×28 image) through:
 - Sigmoid activation in the hidden layer and softmax activation in the output layer.
 
 **MLP Forward Pass:**
-w
+
 ```python
 def forward(self, x):
     self.hidden_layer_input = np.dot(x, self.weights1) + self.bias1
@@ -51,11 +51,6 @@ def forward(self, x):
     return outputs
 ```
 
-Remarks:
-
-- Proper initialization of weights helps avoid vanishing gradients when using sigmoid.
-- The hidden layer activation is sigmoid, which can saturate if not carefully tuned.
-
 **MLP Backward Pass:**
 
 ```python
@@ -64,7 +59,9 @@ def backward(self, x, y, pred):
     d_output = pred - one_hot_y
     d_weights2 = np.dot(self.hidden_layer_output.T, d_output)
     d_bias2 = np.sum(d_output, axis=0)
-    d_hidden = np.dot(d_output, self.weights2.T) * (self.hidden_layer_output * (1 - self.hidden_layer_output))
+    d_hidden = np.dot(d_output, self.weights2.T) 
+                * (self.hidden_layer_output 
+                    * (1 - self.hidden_layer_output))
     d_weights1 = np.dot(x.T, d_hidden)
     d_bias1 = np.sum(d_hidden, axis=0)
 
@@ -73,11 +70,6 @@ def backward(self, x, y, pred):
     self.weights1 -= self.lr * d_weights1
     self.bias1 -= self.lr * d_bias1
 ```
-
-Remarks:
-
-- Correct computation of the derivative of the sigmoid function is essential for stable training.
-- One-hot encoding must match the softmax output dimensions to compute loss gradients properly.
 
 Example `MLP_3.py` output with hidden size = 256:
 
@@ -101,10 +93,10 @@ Test Accuracy: 0.9701
 #### 2.1.2 Gradient computaion
 
 We consider a standard Multilayer Perceptron (MLP) with:
-- Input:$\mathbf{x} \in \mathbb{R}^{d}$(flattened image vector of size 784)
-- Hidden layer: weights$\mathbf{W}_1 \in \mathbb{R}^{d \times h}$, bias$\mathbf{b}_1 \in \mathbb{R}^{h}$
-- Activation: sigmoid function$\sigma(z) = \frac{1}{1 + e^{-z}}$
-- Output layer: weights$\mathbf{W}_2 \in \mathbb{R}^{h \times 10}$, bias$\mathbf{b}_2 \in \mathbb{R}^{10}$
+- Input: $\mathbf{x} \in \mathbb{R}^{d}$ (flattened image vector of size 784)
+- Hidden layer: weights $\mathbf{W}_1 \in \mathbb{R}^{d \times h}$, bias $\mathbf{b}_1 \in \mathbb{R}^{h}$
+- Activation: sigmoid function $\sigma(z) = \frac{1}{1 + e^{-z}}$
+- Output layer: weights $\mathbf{W}_2 \in \mathbb{R}^{h \times 10}$, bias $\mathbf{b}_2 \in \mathbb{R}^{10}$
 - Output activation: softmax
 
 The model computes:
@@ -121,15 +113,15 @@ $$
 \hat{\mathbf{y}} = \text{softmax}(\mathbf{z}_2)
 $$
 
-where$\hat{\mathbf{y}}$is the predicted probability distribution over 10 classes.
+where $\hat{\mathbf{y}}$ is the predicted probability distribution over 10 classes.
 
 The loss is cross-entropy:
 $$
 L = -\sum_{i=1}^{10} y_i \log(\hat{y}_i)
 $$
-where$\mathbf{y}$is the true one-hot encoded label vector.
+where $\mathbf{y}$ is the true one-hot encoded label vector.
 
----
+
 
 ##### Step 1: Derivative of Loss w.r.t. Output Logits
 
@@ -140,66 +132,51 @@ $$
 
 This gives the error at the output layer directly.
 
----
+
 
 ##### Step 2: Gradients for Output Layer Parameters
 
 Compute gradients of the loss with respect to the second layer weights$\mathbf{W}_2$and bias$\mathbf{b}_2$:
 
-- Gradient w.r.t.$\mathbf{W}_2$:
+- Gradient w.r.t. $\mathbf{W}_2$:
 $$
 \frac{\partial L}{\partial \mathbf{W}_2} = \mathbf{h}^\top (\hat{\mathbf{y}} - \mathbf{y})
 $$
-
-- Gradient w.r.t.$\mathbf{b}_2$:
+- Gradient w.r.t. $\mathbf{b}_2$:
 $$
 \frac{\partial L}{\partial \mathbf{b}_2} = \hat{\mathbf{y}} - \mathbf{y}
 $$
-
-where$\mathbf{h}$is the hidden layer output (after sigmoid activation).
-
----
+where $\mathbf{h}$ is the hidden layer output (after sigmoid activation).
 
 ##### Step 3: Backpropagate Through Hidden Layer
 
-Compute the gradient flowing into the hidden layer:
-
-- First, backpropagate through$\mathbf{z}_2$:
+- Backprop through $\mathbf{z}_2$:
 $$
 \frac{\partial L}{\partial \mathbf{h}} = (\hat{\mathbf{y}} - \mathbf{y}) \mathbf{W}_2^\top
 $$
-
-- Then, account for the sigmoid activation derivative:
-The derivative of sigmoid is:
+- Sigmoid derivative:
 $$
 \sigma'(z) = \sigma(z)(1 - \sigma(z))
 $$
-
-Thus:
+thus:
 $$
-\frac{\partial L}{\partial \mathbf{z}_1} = \frac{\partial L}{\partial \mathbf{h}} \odot \sigma(\mathbf{z}_1) (1 - \sigma(\mathbf{z}_1))
+\frac{\partial L}{\partial \mathbf{z}_1} = \frac{\partial L}{\partial \mathbf{h}} \odot \sigma(\mathbf{z}_1)(1 - \sigma(\mathbf{z}_1))
 $$
-where$\odot$denotes element-wise (Hadamard) product.
-
----
+where $\odot$ denotes element-wise (Hadamard) product.
 
 ##### Step 4: Gradients for Hidden Layer Parameters
 
-Compute gradients of the loss with respect to the first layer weights$\mathbf{W}_1$and bias$\mathbf{b}_1$:
-
-- Gradient w.r.t.$\mathbf{W}_1$:
+- Gradient w.r.t. $\mathbf{W}_1$:
 $$
 \frac{\partial L}{\partial \mathbf{W}_1} = \mathbf{x}^\top \left( \frac{\partial L}{\partial \mathbf{z}_1} \right)
 $$
-
-- Gradient w.r.t.$\mathbf{b}_1$:
+- Gradient w.r.t. $\mathbf{b}_1$:
 $$
 \frac{\partial L}{\partial \mathbf{b}_1} = \frac{\partial L}{\partial \mathbf{z}_1}
 $$
 
----
+##### Step 5: Update Rules
 
-##### Step 5: Summary of Update Rules
 
 After computing all gradients, the parameters are updated using gradient descent:
 
@@ -217,17 +194,15 @@ $$
 \mathbf{b}_1 \leftarrow \mathbf{b}_1 - \eta \frac{\partial L}{\partial \mathbf{b}_1}
 $$
 
-where$\eta$is the learning rate.
+where $\eta$ is the learning rate.
 
----
 
-### Key Remarks:
+
+### Remarks:
 - The softmax + cross-entropy derivative simplifies the first step: no need to compute softmax derivative separately.
 - Proper handling of element-wise derivatives of the sigmoid activation is critical to avoid incorrect gradient shapes.
-- All computations assume batch mode:$\mathbf{x}$can represent multiple samples at once.
+- All computations assume batch mode: $\mathbf{x}$ can represent multiple samples at once.
 
-
----
 
 ### 2.2 CNN
 
@@ -240,7 +215,16 @@ The CNN model processes a 28×28 grayscale image through:
 - Flattening,
 - A fully connected layer with 10 outputs.
 
-No pooling operation is used; convolution alone reduces spatial dimensions.
+**Weight Initialization**
+```python
+self.filters = np.random.randn(num_filters, 
+                               1, 
+                               kernel_size, 
+                               kernel_size) *
+               np.sqrt(2.0 / (kernel_size * kernel_size))
+
+```
+According to *"Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification" – He et al., 2015.*, this rescales the weights to preserve the variance of activations across layers during forward propagation.
 
 **CNN Forward Pass:**
 
@@ -254,11 +238,6 @@ def forward(self, x):
     self.probs = softmax(self.logits)
     return self.probs
 ```
-
-Remarks:
-
-- Without pooling, the convolution operation itself is responsible for reducing spatial dimensions.
-- ReLU activation prevents vanishing gradients and accelerates training.
 
 **Vectorized CNN Convolution (Efficient Implementation):**
 
@@ -277,15 +256,15 @@ def convolve(self, x, filters):
     out = np.matmul(patches, filters_flat.T)
     return out.transpose(0, 2, 1).reshape(B, F, OH, OW)
 ```
+
 Remarks:
 
 - The convolution operation is transformed into a batch matrix multiplication by unfolding local patches into rows ("im2col" style) and reshaping filters into rows. Each patch becomes a vector.
 - Mathematically, if `x_patch` has shape `(B, OH*OW, KH*KW)` and `filters_flat` has shape `(F, KH*KW)`, then:
 
-$output[b, :, i] = filters \times x\_patch[b, i]^T$
+$\text{output}[b, :, i] = \text{filters} \times x\_\text{patch}[b, i]^T$
 
-where$x\_patch[b, i]$is the flattened receptive field.
-- This avoids costly nested loops over batch, filters, and spatial dimensions.
+where $x\_\text{patch}[b, i]$ is the flattened receptive field.
 
 **CNN Backward Pass:**
 
@@ -305,7 +284,12 @@ def backward(self, x, y, pred):
     patches = np.lib.stride_tricks.as_strided(
         self.x,
         shape=(B, OH, OW, self.kernel_size, self.kernel_size),
-        strides=(self.x.strides[0], self.x.strides[2], self.x.strides[3], self.x.strides[2], self.x.strides[3]),
+        strides=(
+            self.x.strides[0], 
+            self.x.strides[2], 
+            self.x.strides[3], 
+            self.x.strides[2], 
+            self.x.strides[3]),
         writeable=False
     ).reshape(B, OH * OW, self.kernel_size * self.kernel_size)
 
@@ -313,12 +297,14 @@ def backward(self, x, y, pred):
 
     d_filters = np.zeros_like(self.filters)
     for b in range(B):
-        d_filters += np.matmul(d_out_flat[b], patches[b]).reshape(F, 1, self.kernel_size, self.kernel_size)
+        d_filters += np.matmul(d_out_flat[b], patches[b])
+                       .reshape(F, 1, self.kernel_size, self.kernel_size)
 
     self.fc_weights -= self.lr * d_fc_weights
     self.fc_bias -= self.lr * d_fc_bias
     self.filters -= self.lr * d_filters
 ```
+
 Remarks:
 
 - During backpropagation, output gradients `d_conv` are reshaped to align with the patch matrix.
@@ -341,16 +327,18 @@ Epoch 4/5, Train Loss: 0.2893 Train Accuracy: 0.9170
 Epoch 5/5, Train Loss: 0.2736 Train Accuracy: 0.9219
 Test Accuracy: 0.9252
 ```
-### 2.2.2 Gradient computation
+
+#### 2.2.2 Gradient Computation
 
 We consider a simple CNN with:
-- Input:$\mathbf{x} \in \mathbb{R}^{B \times 1 \times H \times W}$(batch of grayscale images)
-- Convolutional layer: filters$\mathbf{W}_{\text{conv}} \in \mathbb{R}^{F \times 1 \times K \times K}$(F filters of size$K \times K$)
+- Input: $\mathbf{x} \in \mathbb{R}^{B \times 1 \times H \times W}$ (batch of grayscale images)
+- Convolutional layer: filters $\mathbf{W}_{\text{conv}} \in \mathbb{R}^{F \times 1 \times K \times K}$ (F filters)
 - Activation: ReLU
-- Fully connected layer: weights$\mathbf{W}_{\text{fc}} \in \mathbb{R}^{d \times 10}$where$d$is the flattened size after convolution
+- Fully connected layer: weights $\mathbf{W}_{\text{fc}} \in \mathbb{R}^{d \times 10}$
 - Output activation: softmax
 
 The model computes:
+
 1. **Convolution**:
 $$
 \mathbf{z}_{\text{conv}} = \text{conv2d}(\mathbf{x}, \mathbf{W}_{\text{conv}})
@@ -377,16 +365,11 @@ $$
 L = -\sum_{i=1}^{10} y_i \log(\hat{y}_i)
 $$
 
----
-
 ##### Step 1: Derivative of Loss w.r.t. FC Output
 
-Same as in MLP:
 $$
 \frac{\partial L}{\partial \mathbf{z}_{\text{fc}}} = \hat{\mathbf{y}} - \mathbf{y}
 $$
-
----
 
 ##### Step 2: Gradients for Fully Connected Layer
 
@@ -394,34 +377,29 @@ $$
 $$
 \frac{\partial L}{\partial \mathbf{W}_{\text{fc}}} = \mathbf{h}_{\text{flat}}^\top (\hat{\mathbf{y}} - \mathbf{y})
 $$
-
 - Gradient w.r.t. FC bias:
 $$
 \frac{\partial L}{\partial \mathbf{b}_{\text{fc}}} = \hat{\mathbf{y}} - \mathbf{y}
 $$
-
-- Backpropagate into the flattened feature map:
+- Backpropagate into flattened feature map:
 $$
 \frac{\partial L}{\partial \mathbf{h}_{\text{flat}}} = (\hat{\mathbf{y}} - \mathbf{y}) \mathbf{W}_{\text{fc}}^\top
 $$
 
----
-
 ##### Step 3: Reshape and Backpropagate Through ReLU
 
-Reshape:
+- Reshape:
 $$
 \frac{\partial L}{\partial \mathbf{h}_{\text{conv}}} = \text{reshape}\left( \frac{\partial L}{\partial \mathbf{h}_{\text{flat}}} \right)
 $$
-
-Backpropagate through ReLU:
+- ReLU derivative:
 $$
 \frac{\partial L}{\partial \mathbf{z}_{\text{conv}}} = \frac{\partial L}{\partial \mathbf{h}_{\text{conv}}} \odot \mathbf{1}_{\mathbf{z}_{\text{conv}} > 0}
 $$
 
-where$\mathbf{1}_{\mathbf{z}_{\text{conv}} > 0}$is an indicator function that is 1 where$\mathbf{z}_{\text{conv}}$was positive and 0 elsewhere.
+where $\mathbf{1}_{\mathbf{z}_{\text{conv}} > 0}$ is an indicator function that is 1 where $\mathbf{z}_{\text{conv}}$ was positive and 0 elsewhere.
 
----
+
 
 ##### Step 4: Gradients for Convolutional Filters
 
@@ -430,8 +408,8 @@ At this point, we need to compute the gradient of the loss with respect to the c
 Using vectorized notation:
 
 Let:
--$\mathbf{P}$be the matrix of extracted patches from$\mathbf{x}$, with shape$(B, OH \times OW, K \times K)$
--$\delta_{\text{conv}} = \frac{\partial L}{\partial \mathbf{z}_{\text{conv}}}$, reshaped as$(B, F, OH \times OW)$
+- $\mathbf{P}$ be the matrix of extracted patches from $\mathbf{x}$ , with shape $(B, OH \times OW, K \times K)$
+-$\delta_{\text{conv}} = \frac{\partial L}{\partial \mathbf{z}_{\text{conv}}}$, reshaped as $(B, F, OH \times OW)$
 
 Then, for each batch$b$, the gradient for convolutional filters is:
 
@@ -440,12 +418,12 @@ $$
 $$
 
 Specifically:
-- Multiply each$(F, OH \times OW)$gradient slice with the corresponding$(OH \times OW, K \times K)$patch slice.
+- Multiply each $(F, OH \times OW)$ gradient slice with the corresponding $(OH \times OW, K \times K)$ patch slice.
 - Resulting in a$(F, K, K)$tensor.
 
 Summed over the batch.
 
----
+
 
 ##### Step 5: Summary of Update Rules
 
@@ -464,12 +442,12 @@ $$
 \mathbf{W}_{\text{conv}} \leftarrow \mathbf{W}_{\text{conv}} - \eta \Delta \mathbf{W}_{\text{conv}}
 $$
 
-where$\eta$is the learning rate.
+where $\eta$ is the learning rate.
 
----
+
 
 ### Key Remarks:
-- Convolution backpropagation is efficiently computed by reshaping the input into patches (im2col), and using matrix multiplication to compute gradients.
+- Convolution backpropagation is efficiently computed by reshaping the input into patches, and using matrix multiplication to compute gradients.
 - ReLU activation masks the gradient, ensuring only the active neurons propagate gradients backward.
 - The spatial dimensions shrink in the forward convolution (valid convolution), so the backpropagated gradients must align carefully with reduced sizes.
 - Efficient batch matrix multiplications allow computing all filter updates across the batch without explicit nested loops.
@@ -487,11 +465,9 @@ where$\eta$is the learning rate.
     - **MLP**: 100
     - **CNN**: 5
 
-We performed multiple experiments on the MLP architecture by varying the `hidden_size` parameter to understand its effect on model performance.
+The five hidden sizes tested for MLP were **32, 64, 128, 256, 512**.
 
-The five values tested for `hidden_size` were: **32, 64, 128, 256, 512**.
 
----
 
 ### 3.2 MLP Learning Curves
 
@@ -503,11 +479,12 @@ Below are the training loss and accuracy plots for each hidden size:
 
 ### 3.3 CNN Learning Curves
 
-Below are the training loss and accuracy plots for each hidden size:
+Below are the training loss and accuracy plots for each kernel size:
 
 ![](cnn_results/train_accuracy.png)
 
 ![](cnn_results/train_losses.png)
+
 
 
 ### 3.4 MLP Accuracy Results
@@ -517,10 +494,10 @@ The table below shows test set accuracy for each `hidden_size` value:
 | Hidden Layer Size | Test Accuracy |
 |-------------------|---------------|
 | 32                | 95.69%        |
-| 64                |   96.94%      |
-| 128               |   96.79%      |
-| 256               |  ***97.01%*** |
-| 512               |    96.40%     |
+| 64                | 96.94%        |
+| 128               | 96.79%        |
+| 256               | **97.01%**    |
+| 512               | 96.40%        |
 
 We found that increasing the hidden layer size generally improved accuracy, but performance plateaued beyond 256. The best result was obtained with `hidden_size = 256`.
 
@@ -539,7 +516,7 @@ The table below shows test set accuracy for each `kernel_size` value:
 
 As can be seen, the best result was obtained with `kernel_size = 7`.
 
----
+
 
 ## 4. Learning Outcomes
 
@@ -548,15 +525,16 @@ As can be seen, the best result was obtained with `kernel_size = 7`.
 - Implemented both MLP and CNN architectures from scratch in NumPy.
 - Derived and implemented full forward and backward propagation manually.
 - Designed a full training and evaluation pipeline.
+- Found best hyperparameters (`hidden_size` for MLP and `kernel_size` for CNN) during evaluation of our models.
 - Gained practical experience debugging gradient flow in neural nets.
 
 ### 4.2 Team Contributions
 
 This project was a team effort by three members:
 
-- **Reza Mansouri**: Developed the convolutional operation and CNN backpropagation logic.
-- **Pranjal Patil**: Implemented the MLP architecture and trained both models.
-- **Ven Mendelssohn**: Wrote the training/evaluation scripts and composed the final report.
+- **Reza Mansouri**: Implemented the CNN architecture, developed the vectorized convolution and backpropagation, and trained CNN models.
+- **Pranjal Patil**: Implemented the MLP architecture, designed the MLP training loop, and handled saving/loading parameters.
+- **Ven Mendelssohn**: Integrated training/evaluation pipelines, generated plots, and wrote and organized the final project report.
 
 All members contributed to testing, debugging, and system integration.
 
@@ -565,6 +543,7 @@ All members contributed to testing, debugging, and system integration.
 - Implementing convolutional backpropagation without autograd was complex.
 - Proper memory management and vectorization were crucial for speed.
 - Manual implementation helped us understand how modern frameworks work under the hood.
+- More parameters does not always mean better performance, since overfitting is always possible.
 
 ### 4.4 Conclusion
 
