@@ -102,30 +102,22 @@ We consider a standard Multilayer Perceptron (MLP) with:
 The model computes:
 
 $$
-
 \mathbf{z}_1 = \mathbf{x} \mathbf{W}_1 + \mathbf{b}_1
-
 $$
 
 
 $$
-
 \mathbf{h} = \sigma(\mathbf{z}_1)
-
 $$
 
 
 $$
-
 \mathbf{z}_2 = \mathbf{h} \mathbf{W}_2 + \mathbf{b}_2
-
 $$
 
 
 $$
-
 \hat{\mathbf{y}} = \text{softmax}(\mathbf{z}_2)
-
 $$
 
 
@@ -134,9 +126,7 @@ where $\hat{\mathbf{y}}$ is the predicted probability distribution over 10 class
 The loss is cross-entropy:
 
 $$
-
 L = -\sum_{i=1}^{10} y_i \log(\hat{y}_i)
-
 $$
 
 where $\mathbf{y}$ is the true one-hot encoded label vector.
@@ -148,9 +138,7 @@ where $\mathbf{y}$ is the true one-hot encoded label vector.
 For softmax + cross-entropy, the derivative simplifies to:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{z}_2} = \hat{\mathbf{y}} - \mathbf{y}
-
 $$
 
 
@@ -165,17 +153,13 @@ Compute gradients of the loss with respect to the second layer weights$\mathbf{W
 - Gradient w.r.t. $\mathbf{W}_2$:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{W}_2} = \mathbf{h}^\top (\hat{\mathbf{y}} - \mathbf{y})
-
 $$
 
 - Gradient w.r.t. $\mathbf{b}_2$:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{b}_2} = \hat{\mathbf{y}} - \mathbf{y}
-
 $$
 
 where $\mathbf{h}$ is the hidden layer output (after sigmoid activation).
@@ -185,25 +169,19 @@ where $\mathbf{h}$ is the hidden layer output (after sigmoid activation).
 - Backprop through $\mathbf{z}_2$:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{h}} = (\hat{\mathbf{y}} - \mathbf{y}) \mathbf{W}_2^\top
-
 $$
 
 - Sigmoid derivative:
 
 $$
-
 \sigma'(z) = \sigma(z)(1 - \sigma(z))
-
 $$
 
 thus:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{z}_1} = \frac{\partial L}{\partial \mathbf{h}} \odot \sigma(\mathbf{z}_1)(1 - \sigma(\mathbf{z}_1))
-
 $$
 
 where $\odot$ denotes element-wise (Hadamard) product.
@@ -213,17 +191,13 @@ where $\odot$ denotes element-wise (Hadamard) product.
 - Gradient w.r.t. $\mathbf{W}_1$:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{W}_1} = \mathbf{x}^\top \left( \frac{\partial L}{\partial \mathbf{z}_1} \right)
-
 $$
 
 - Gradient w.r.t. $\mathbf{b}_1$:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{b}_1} = \frac{\partial L}{\partial \mathbf{z}_1}
-
 $$
 
 
@@ -235,30 +209,22 @@ After computing all gradients, the parameters are updated using gradient descent
 - Update weights and biases:
 
 $$
-
 \mathbf{W}_2 \leftarrow \mathbf{W}_2 - \eta \frac{\partial L}{\partial \mathbf{W}_2}
-
 $$
 
 
 $$
-
 \mathbf{b}_2 \leftarrow \mathbf{b}_2 - \eta \frac{\partial L}{\partial \mathbf{b}_2}
-
 $$
 
 
 $$
-
 \mathbf{W}_1 \leftarrow \mathbf{W}_1 - \eta \frac{\partial L}{\partial \mathbf{W}_1}
-
 $$
 
 
 $$
-
 \mathbf{b}_1 \leftarrow \mathbf{b}_1 - \eta \frac{\partial L}{\partial \mathbf{b}_1}
-
 $$
 
 
@@ -410,50 +376,38 @@ The model computes:
 1. **Convolution**:
 
 $$
-
 \mathbf{z}_{\text{conv}} = \text{conv2d}(\mathbf{x}, \mathbf{W}_{\text{conv}})
-
 $$
 
 2. **ReLU Activation**:
 
 $$
-
 \mathbf{h}_{\text{conv}} = \text{ReLU}(\mathbf{z}_{\text{conv}})
-
 $$
 
 3. **Flattening**:
 
 $$
-
 \mathbf{h}_{\text{flat}} = \text{flatten}(\mathbf{h}_{\text{conv}})
-
 $$
 
 4. **Fully Connected Layer**:
 
 $$
-
 \mathbf{z}_{\text{fc}} = \mathbf{h}_{\text{flat}} \mathbf{W}_{\text{fc}} + \mathbf{b}_{\text{fc}}
-
 $$
 
 5. **Softmax Output**:
 
 $$
-
 \hat{\mathbf{y}} = \text{softmax}(\mathbf{z}_{\text{fc}})
-
 $$
 
 
 The loss is cross-entropy:
 
 $$
-
 L = -\sum_{i=1}^{10} y_i \log(\hat{y}_i)
-
 $$
 
 
@@ -461,9 +415,7 @@ $$
 
 
 $$
-
 \frac{\partial L}{\partial \mathbf{z}_{\text{fc}}} = \hat{\mathbf{y}} - \mathbf{y}
-
 $$
 
 
@@ -472,25 +424,19 @@ $$
 - Gradient w.r.t. FC weights:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{W}_{\text{fc}}} = \mathbf{h}_{\text{flat}}^\top (\hat{\mathbf{y}} - \mathbf{y})
-
 $$
 
 - Gradient w.r.t. FC bias:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{b}_{\text{fc}}} = \hat{\mathbf{y}} - \mathbf{y}
-
 $$
 
 - Backpropagate into flattened feature map:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{h}_{\text{flat}}} = (\hat{\mathbf{y}} - \mathbf{y}) \mathbf{W}_{\text{fc}}^\top
-
 $$
 
 
@@ -499,17 +445,13 @@ $$
 - Reshape:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{h}_{\text{conv}}} = \text{reshape}\left( \frac{\partial L}{\partial \mathbf{h}_{\text{flat}}} \right)
-
 $$
 
 - ReLU derivative:
 
 $$
-
 \frac{\partial L}{\partial \mathbf{z}_{\text{conv}}} = \frac{\partial L}{\partial \mathbf{h}_{\text{conv}}} \odot \mathbf{1}_{\mathbf{z}_{\text{conv}} > 0}
-
 $$
 
 
@@ -531,9 +473,7 @@ Then, for each batch$b$, the gradient for convolutional filters is:
 
 
 $$
-
 \Delta \mathbf{W}_{\text{conv}} = \sum_{b=1}^B \delta_{\text{conv}}[b] \times \mathbf{P}[b]
-
 $$
 
 
@@ -552,25 +492,19 @@ The parameters are updated using gradient descent:
 - Update FC layer:
 
 $$
-
 \mathbf{W}_{\text{fc}} \leftarrow \mathbf{W}_{\text{fc}} - \eta \frac{\partial L}{\partial \mathbf{W}_{\text{fc}}}
-
 $$
 
 
 $$
-
 \mathbf{b}_{\text{fc}} \leftarrow \mathbf{b}_{\text{fc}} - \eta \frac{\partial L}{\partial \mathbf{b}_{\text{fc}}}
-
 $$
 
 
 - Update convolutional filters:
 
 $$
-
 \mathbf{W}_{\text{conv}} \leftarrow \mathbf{W}_{\text{conv}} - \eta \Delta \mathbf{W}_{\text{conv}}
-
 $$
 
 
